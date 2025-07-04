@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+*.логов.*
+
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.swp
+
+# Build output
+build/
+dist/
+
+# Environment variables
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Security
+.secrets/
