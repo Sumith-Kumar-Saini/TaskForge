@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
+import dummyReducer from '../features/dummyReducer';
 
 // You’ll import slices here as you build features
-// import someFeatureReducer from '../features/someFeature/someSlice';
 
 export const store = configureStore({
   reducer: {
     // Add feature reducers here:
-    // someFeature: someFeatureReducer,
+    placeholder: dummyReducer,
   },
   // Optional: Add middleware or dev tools customization here
   // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(customMiddleware),
