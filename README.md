@@ -86,7 +86,8 @@ taskforge/
 │   │   ├── middlewares/               # Custom Express middleware
 │   │   ├── models/                    # MongoDB schemas (Mongoose)
 │   │   ├── routes/                    # API endpoints
-│   │   └── app.js                     # Express app entry point
+│   │   └── app.js                     # Sets up app (routes, middleware, etc.)
+│   ├── server.js                      # Entry point – starts the server
 │   ├── package.json                   # Server dependencies & scripts
 │   └── .env.example                   # Sample environment config
 │
