@@ -1,4 +1,3 @@
-import React from "react";
 import TempLandingPage from "./components/TempLandingPage";
 
 const App = () => {
