@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon server.js",
     "build": "echo 'No build step for Express Server'",
-    "start": "node src/app.js"
+    "start": "node server.js"
   },
   "type": "commonjs",
   "dependencies": {
