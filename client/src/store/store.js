@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import dummyReducer from '../features/dummyReducer';
+import dummyReducer from '@/features/dummyReducer';
 
 // You’ll import slices here as you build features
 

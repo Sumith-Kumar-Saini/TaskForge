@@ -1,4 +1,4 @@
-import TempLandingPage from "../components/TempLandingPage";
+import TempLandingPage from "@/components/TempLandingPage";
 
 const Home = () => {
   return <TempLandingPage content={"TaskForge"} />;
