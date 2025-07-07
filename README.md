@@ -66,9 +66,13 @@ taskforge/
 ├── client/                            # Frontend - React + Vite + Redux
 │   ├── public/                        # Static files
 │   ├── src/                           # Source files
+│   │   ├── assets/                    # Images, icons, and other static assets
 │   │   ├── components/                # Reusable UI components
+│   │   ├── constants/                 # Constant values
 │   │   ├── features/                  # Redux slices and domain logic
 │   │   ├── hooks/                     # Custom React hooks
+│   │   ├── layouts/                   # Shared layouts (e.g., Header, Sidebar)
+│   │   ├── lib/                       # Utility libraries and helper functions
 │   │   ├── pages/                     # Route-based pages
 │   │   ├── router/                    # React Router configs
 │   │   ├── store/                     # Redux store configuration
@@ -82,10 +86,16 @@ taskforge/
 │
 ├── server/                            # Backend - Node.js + Express + MongoDB
 │   ├── src/
+│   │   ├── config/                    # App configuration (e.g., DB, CORS)
+│   │   ├── constants/                 # Static values, enums, etc.
 │   │   ├── controllers/               # Business logic for routes
 │   │   ├── middlewares/               # Custom Express middleware
-│   │   ├── models/                    # MongoDB schemas (Mongoose)
+│   │   ├── models/                    # MongoDB models
 │   │   ├── routes/                    # API endpoints
+│   │   ├── schemas/                   # MongoDB schemas (Mongoose)
+│   │   ├── services/                  # Core service logic (e.g., DB, email, APIs)
+│   │   ├── utils/                     # Helper functions/utilities
+│   │   ├── validators/                # Request validators using schemas
 │   │   └── app.js                     # Sets up app (routes, middleware, etc.)
 │   ├── server.js                      # Entry point – starts the server
 │   ├── package.json                   # Server dependencies & scripts
