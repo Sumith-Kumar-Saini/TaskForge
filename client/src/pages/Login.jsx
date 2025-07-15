@@ -1,6 +1,6 @@
-import { useLoginForm } from "../hooks/useLoginForm";
+import { useLoginForm } from "@/hooks/useLoginForm";
 import { useState } from "react";
-import InputField from "../components/InputField";
+import InputField from "@/components/InputField";
 import AuthFormWrapper from "@/components/AuthFormWrapper";
 
 export default function Login() {
