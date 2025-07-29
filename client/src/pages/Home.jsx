@@ -10,6 +10,10 @@ const Home = () => {
     <Features />
     <Showcase />
     <TargetUsers/>
+    <WhyChooseTaskForge /> 
+    <TestimonialsSection /> 
+    <PricingSection /> 
+    <Footer />
   </div>;
 };
 
