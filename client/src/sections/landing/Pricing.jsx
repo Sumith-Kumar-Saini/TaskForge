@@ -15,7 +15,7 @@ export default function PricingSection() {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className={`flex-1 border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col justify-between ${
+            className={`flex-1 border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between ${
               plan.isPopular ? "border-black" : "border-gray-200"
             }`}
           >
@@ -33,7 +33,7 @@ export default function PricingSection() {
                 ))}
               </ul>
             </div>
-            <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors mt-4">
+            <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 cursor-pointer transition-colors mt-4">
               Get Started
             </button>
           </div>

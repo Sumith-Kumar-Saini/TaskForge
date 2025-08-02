@@ -14,13 +14,13 @@ const Hero = () => {
         <div className="text-[#fff] flex items-center gap-5 justify-center">
           <button
             // onClick={/* onclick function */}
-            className="bg-[#0960FD] px-5 rounded-[5px] py-2"
+            className="bg-blue-500 px-5 rounded-[5px] py-2 cursor-pointer"
           >
             Get Started Free
           </button>
           <button
             // onClick={/* onclick function */}
-            className="bg-[#0960FD] px-5 rounded-[5px] py-2"
+            className="bg-blue-500 px-5 rounded-[5px] py-2 cursor-pointer"
           >
             View Demo
           </button>
