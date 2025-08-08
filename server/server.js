@@ -1,14 +1,16 @@
-import dotenv from "dotenv";
-import { createServer } from "http";
+import "@dotenvx/dotenvx/config";
+
 import app from "./src/app.js";
+import { createServer } from "http";
 import logger from "./src/utils/winstonLogger.js";
-
-dotenv.config();
-
-const PORT = process.env.PORT || 3000;
+import connectDB from "./src/config/db.js";
+import { ENV } from "./src/config/env.js";
 
 async function main() {
   const server = createServer(app);
+  const { PORT } = ENV;
+
+  await connectDB();
 
   server.listen(PORT, () => {
     logger.info(`Server Listening on ${PORT}`);

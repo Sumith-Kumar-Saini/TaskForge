@@ -4,18 +4,22 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon",
     "build": "echo 'No build step for Express Server'",
     "start": "node server.js"
   },
   "type": "module",
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.48.4",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.0",
     "morgan": "^1.10.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.0.15"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
