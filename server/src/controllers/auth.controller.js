@@ -8,58 +8,88 @@ import { timeStringToSeconds } from "../utils/time.js";
 import { REFRESH_TOKEN_EXPIRATION } from "../constants/constants.js";
 import logger from "../utils/winstonLogger.js";
 
+/**
+ * @typedef {Object} RegisterRequestBody
+ * @property {string} username - Unique username of the new user.
+ * @property {string} email - Valid email address of the new user.
+ * @property {string} password - Password for the new user (plain text, will be hashed in service).
+ */
+
+/**
+ * @typedef {Object} ExistingUser
+ * @property {string} [username] - Existing user's username.
+ * @property {string} [email] - Existing user's email.
+ */
+
+/**
+ * @function register
+ * @description Handles user registration by validating inputs, checking for duplicates,
+ *              creating the user, and issuing authentication tokens.
+ * @param {import("express").Request<unknown, unknown, RegisterRequestBody>} req - Express request object.
+ * @param {import("express").Response} res - Express response object.
+ * @returns {Promise<import("express").Response>} Returns an Express Response.
+ */
 export async function register(req, res) {
   const { username, email, password } = req.body;
 
   try {
-    // check if user exist in Database
-    const exist = await checkUserExist({ username, email });
-    if (exist) {
-      const error = checksExisting(exist, { username, email });
-      return res.status(409).json({ error });
+    // Check if user exists
+    const existingUser = await checkUserExist({ username, email });
+    if (existingUser) {
+      const errorMsg = getExistingUserError(existingUser, { username, email });
+      return res.status(409).json({ error: errorMsg });
     }
 
-    // create user with name, email, password
+    // Create new user
     const user = await createUser({ username, email, password });
 
     // Generate Access Token
-    const { token: ACCESS_TOKEN } = await generateAccessToken({
-      id: user._id,
+    const { token: accessToken } = await generateAccessToken({
+      id: user._id.toString(),
       email: user.email,
     });
 
-    // Generate Refresh Token with JWT ID
-    // TODO: For now we are not using JWT ID to rotate Refresh Token
-    const { token: REFRESH_TOKEN, jti: _ } = await generateRefreshToken({
-      id: user._id,
+    // Generate Refresh Token (rotation logic can be added later)
+    const { token: refreshToken /*, jti*/ } = await generateRefreshToken({
+      id: user._id.toString(),
     });
 
-    // Sets the cookie to client with httpOnly true with maxAge of 30 days
-    res.cookie("refreshToken", REFRESH_TOKEN, {
+    // Set secure cookie for refresh token
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: ENV.NODE_ENV === "production",
-      maxAge: timeStringToSeconds(REFRESH_TOKEN_EXPIRATION),
+      sameSite: "strict",
+      maxAge: timeStringToSeconds(REFRESH_TOKEN_EXPIRATION) * 1000, // in ms
     });
 
-    // Response with status code 201 - new entry created, aka new user created
+    // Return success response
     return res.status(201).json({
-      message: "User Registration Successful",
-      token: ACCESS_TOKEN,
+      message: "User registration successful",
+      token: accessToken,
       user: user.toJSON(),
     });
-  } catch (err) {
-    // handles errors if server issues, like not added environment variables
-    logger.error("Registration Error occurred: ", err);
-    return res.status(500).json({ error: "Something want wrong" });
+  } catch (error) {
+    logger.error("Registration Error occurred:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
-function checksExisting(existingUser, { username, email }) {
+/**
+ * @function getExistingUserError
+ * @description Determines the appropriate error message when a username or email already exists.
+ * @param {ExistingUser} existingUser - The user record found in the database.
+ * @param {{ username: string, email: string }} input - The username and email provided by the client.
+ * @returns {string} A human-readable error message describing the conflict.
+ */
+function getExistingUserError(existingUser, { username, email }) {
   if (existingUser.username === username && existingUser.email === email) {
     return "Username and email already exist";
-  } else if (existingUser.username === username) {
+  }
+  if (existingUser.username === username) {
     return "Username is already taken";
-  } else if (existingUser.email === email) {
+  }
+  if (existingUser.email === email) {
     return "Email is already registered";
   }
+  return "User already exists";
 }
