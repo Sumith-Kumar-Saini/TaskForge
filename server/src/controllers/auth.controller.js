@@ -34,7 +34,10 @@ export async function register(req, res) {
 
   try {
     // Check if user exists
-    const existingUser = await checkUserExist({ username, email });
+    const existingUser = await checkUserExist(
+      { username, email },
+      { password: undefined }
+    );
     if (existingUser) {
       const errorMsg = getExistingUserError(existingUser, { username, email });
       return res.status(409).json({ error: errorMsg });

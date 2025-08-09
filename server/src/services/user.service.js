@@ -1,38 +1,55 @@
+import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import logger from "../utils/winstonLogger.js";
 
+/**
+ * Creates a new user
+ * @param { CreateUserInput } param0
+ * @returns { Promise<import("../types/user.js").IUser> } - new entry of User
+ */
 export async function createUser({ username, email, password }) {
   const user = new User({ username, email, password });
   await user.save(); // in future we would add JWT ID
   return user;
 }
 
-export async function verifyUserPassword({ email, candidatePassword }) {
-  const user = await User.findOne({ email });
-  if (!user) throw new Error("User not found");
+/**
+ * Verifies a user's password against its hashed value
+ * @param { string } [password] - Password
+ * @param { string } [hash] - Password hash
+ * @returns {Promise<boolean>}
+ */
+export async function verifyUserPassword({ password, hash }) {
+  if (typeof password !== "string" || typeof hash !== "string") {
+    logger.warn("verifyUserPassword called with invalid arguments", {
+      passwordProvided: typeof password === "string",
+      hashProvided: typeof hash === "string",
+    });
+    return false; // fail gracefully instead of crashing
+  }
 
-  const isMatch = await user.comparePassword({ candidatePassword });
-  if (!isMatch) throw new Error("Incorrect password");
-
-  return user;
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch (err) {
+    logger.error("Error comparing passwords", { error: err.message });
+    return false;
+  }
 }
 
 /**
  * Finds a user by username or email.
- *
- * Usage:
- * - Registration: to check if username or email is already taken.
- * - Login: to verify that a username/email exists before password check.
- * - Other checks: when needing to fetch a user by username/email for any logic.
- *
- * Returns:
- * - null if no match.
- * - { username, email, _id } if a user is found.
- *
- * @param {Object} params
- * @param {string} [params.username] - Username to search for.
- * @param {string} [params.email] - Email to search for.
+ * @param { Object } params0
+ * @param { string } [params0.username] - Username to search for.
+ * @param { string } [params0.email] - Email to search for.
+ * @param { Object } param1
+ * @param { boolean } [param1.password=false] - options
+ * @param { boolean } [param1.fullDoc=false] - options
+ * @returns { Promise<import("../types/user.js").IUser | null> }
  */
-export async function checkUserExist({ username, email }) {
+export async function checkUserExist(
+  { username, email },
+  { password = false, fullDoc = false }
+) {
   try {
     const query = [];
     if (username) query.push({ username });
@@ -42,11 +59,17 @@ export async function checkUserExist({ username, email }) {
       throw new Error("checkUserExist requires at least username or email");
     }
 
-    const user = await User.findOne(
-      { $or: query },
-      { username: 1, email: 1, _id: 1 }
-    ).lean();
+    let mongoQuery = User.findOne({ $or: query }).select("username email _id");
 
+    if (password) {
+      mongoQuery = mongoQuery.select("+password");
+    }
+
+    if (!fullDoc) {
+      mongoQuery.lean();
+    }
+
+    const user = await mongoQuery.exec();
     return user || null;
   } catch (error) {
     logger.error("Error in checkUserExist", { error: error.message });
