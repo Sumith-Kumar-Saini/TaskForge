@@ -1,4 +1,8 @@
-import { checkUserExist, createUser } from "../services/user.service.js";
+import {
+  checkUserExist,
+  createUser,
+  verifyUserPassword,
+} from "../services/user.service.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -40,7 +44,11 @@ export async function register(req, res) {
     );
     if (existingUser) {
       const errorMsg = getExistingUserError(existingUser, { username, email });
-      return res.status(409).json({ error: errorMsg });
+      return res.easyResponse({
+        statusCode: 409,
+        error: new Error(errorMsg),
+        message: "User already exists",
+      });
     }
 
     // Create new user
@@ -68,14 +76,21 @@ export async function register(req, res) {
     });
 
     // Return success response
-    return res.status(201).json({
+    return res.easyResponse({
+      statusCode: 201,
       message: "User registration successful",
-      token: accessToken,
-      user: sanitizedUser,
+      payload: {
+        token: accessToken,
+        user: sanitizedUser,
+      },
     });
   } catch (error) {
     logger.error("Registration Error occurred:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.easyResponse({
+      statusCode: 500,
+      message: "Internal server error",
+      error,
+    });
   }
 }
 
@@ -99,3 +114,71 @@ function getExistingUserError(existingUser, { username, email }) {
   return "User already exists";
 }
 
+/**
+ * @function login
+ * @description Handles user login by validating inputs, login the user, and issuing authentication tokens.
+ * @param {import("express").Request} req - Express request object.
+ * @param {import("express").Response} res - Express response object.
+ * @returns {Promise<import("express").Response>} Returns an Express Response.
+ */
+export async function login(req, res) {
+  const { username, email, password } = req.body;
+  try {
+    const user = await checkUserExist({ username, email }, { password: true });
+
+    if (!user) {
+      return res.easyResponse({
+        statusCode: 404,
+        error: new Error("Not Found"),
+        message: "Account not found",
+      });
+    }
+
+    const isPasswordMatch = await verifyUserPassword({
+      password,
+      hash: user.password,
+    });
+
+    if (!isPasswordMatch) {
+      return res.easyResponse({
+        statusCode: 401,
+        error: new Error("Unauthorized"),
+        message: "Invalid credentials",
+      });
+    }
+
+    const { token: accessToken } = await generateAccessToken({
+      id: user._id.toString(),
+      email,
+    });
+
+    const { token: refreshToken /*, jti */ } = await generateRefreshToken({
+      id: user._id.toString(),
+    });
+
+    const sanitizedUser = user.removeFields("password");
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: timeStringToSeconds(REFRESH_TOKEN_EXPIRATION) * 1000,
+    });
+
+    return res.easyResponse({
+      statusCode: 200,
+      message: "User login successful",
+      payload: {
+        accessToken,
+        user: sanitizedUser,
+      },
+    });
+  } catch (error) {
+    logger.error("Login Error occurred: ", error);
+    return res.easyResponse({
+      statusCode: 500,
+      error: new Error("Internal server error"),
+      message: "Internal server error",
+    });
+  }
+}

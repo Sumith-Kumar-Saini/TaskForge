@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { ENV } from "./config/env.js";
 import logger from "./utils/winstonLogger.js";
 import { getLoggerMiddleware } from "./middlewares/logger.js";
+import ApiResponse from "./middlewares/easyResponse.js";
 import cookieParser from "cookie-parser";
 
 // routers
@@ -18,12 +19,13 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(ApiResponse.easyResponse());
 app.use(getLoggerMiddleware(NODE_ENV));
 
 // Example route with app-level logging
 app.get("/", (_, res) => {
   logger.info("Root route was accessed");
-  res.json({ message: "API is working!" });
+  res.easyResponse({ statusCode: 200, message: "API is working!" });
 });
 
 app.use("/api/auth", AuthRouter);
