@@ -3,8 +3,15 @@ import User from "../models/user.model.js";
 import logger from "../utils/winstonLogger.js";
 
 /**
+ * @typedef {Object} CreateUserInput
+ * @property {string} username - Username
+ * @property {string} email - email
+ * @property {string} password - password
+ */
+
+/**
  * Creates a new user
- * @param { CreateUserInput } param0
+ * @param { CreateUserInput } param
  * @returns { Promise<import("../types/user.js").IUser> } - new entry of User
  */
 export async function createUser({ username, email, password }) {
@@ -59,17 +66,27 @@ export async function checkUserExist(
       throw new Error("checkUserExist requires at least username or email");
     }
 
-    let mongoQuery = User.findOne({ $or: query }).select("username email _id");
+    const selectFields = [
+      "username",
+      "email",
+      "_id",
+      password ? "password" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
-    if (password) {
-      mongoQuery = mongoQuery.select("+password");
+    const user = await User.findOne({ $or: query }).select(selectFields).lean(); // Lean automatically returns plain JS objects
+
+    if (user) {
+      user.removeFields = (fields) => {
+        const fieldsArray = fields.split(" ");
+        fieldsArray.forEach((field) => {
+          delete user[field];
+        });
+        return user;
+      };
     }
 
-    if (!fullDoc) {
-      mongoQuery.lean();
-    }
-
-    const user = await mongoQuery.exec();
     return user || null;
   } catch (error) {
     logger.error("Error in checkUserExist", { error: error.message });

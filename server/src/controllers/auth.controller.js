@@ -57,6 +57,8 @@ export async function register(req, res) {
       id: user._id.toString(),
     });
 
+    const sanitizedUser = user.removeFields("password createdAt updatedAt");
+
     // Set secure cookie for refresh token
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -69,7 +71,7 @@ export async function register(req, res) {
     return res.status(201).json({
       message: "User registration successful",
       token: accessToken,
-      user: user.toJSON(),
+      user: sanitizedUser,
     });
   } catch (error) {
     logger.error("Registration Error occurred:", error);
@@ -96,3 +98,4 @@ function getExistingUserError(existingUser, { username, email }) {
   }
   return "User already exists";
 }
+

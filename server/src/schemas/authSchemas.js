@@ -2,12 +2,12 @@ import { z } from "zod";
 
 const usernameSanitizer = z
   .string()
-  .min(2, "Username must be at least 2 characters")
-  .refine((val) => /^[a-z0-9_-]+$/.test(val), {
+  .min(3, { message: "Username must be at least 3 characters long." })
+  .max(20, { message: "Username must be at most 20 characters long." })
+  .regex(/^[a-zA-Z0-9_-]+$/, {
     message:
-      "Username can only contain lowercase letters, numbers, underscores, and hyphens",
-  })
-  .transform((val) => val.trim().toLowerCase().replace(/\s+/g, "_"));
+      "Username can only contain alphanumeric characters and underscores.",
+  });
 
 const emailSanitizer = z
   .string()

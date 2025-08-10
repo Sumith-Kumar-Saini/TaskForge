@@ -37,11 +37,20 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Method to remove specific fields dynamically
+userSchema.methods.removeFields = function (_fields) {
+  const user = this.toObject();
+  const fields = _fields.split(" ");
+  fields.forEach(field => {
+    delete user[field];  // Dynamically remove the fields from the user object
+  });
+  return user;
+};
+
+// Custom toJSON method to exclude password by default
 userSchema.methods.toJSON = function () {
-  const user = this;
-  const userObject = user.toObject();
-  delete userObject.passwordHash;
-  return userObject;
+  const user = this.removeFields("password");
+  return user;
 };
 
 const User = mongoose.models.User || model("User", userSchema);

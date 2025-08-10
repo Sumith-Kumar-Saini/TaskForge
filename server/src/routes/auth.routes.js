@@ -37,8 +37,6 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       });
     }
 
-    console.log(user);
-
     const isPasswordMatch = await verifyUserPassword({
       password,
       hash: user.password,
@@ -64,6 +62,8 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       id: user._id.toString(),
     });
 
+    const sanitizedUser = user.removeFields("password");
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: ENV.NODE_ENV === "production",
@@ -77,7 +77,10 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       message: "User login successful",
       timestamp: new Date().toISOString(),
       path: "/api/auth/login",
-      accessToken,
+      payload: {
+        accessToken,
+        user: sanitizedUser,
+      },
     });
   } catch (error) {
     logger.error("Login Error occurred: ", error);

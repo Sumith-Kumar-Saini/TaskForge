@@ -2,5 +2,5 @@
   "ignore": ["node_modules/", "dist/", "*.log"],
   "watch": ["src"],
   "ext": "js,cjs,json",
-  "exec": "node server.js"
+  "exec": "clear && node server.js"
 }
