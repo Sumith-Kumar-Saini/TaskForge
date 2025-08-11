@@ -57,7 +57,6 @@ export async function register(req, res) {
     // Generate Access Token
     const { token: accessToken } = await generateAccessToken({
       id: user._id.toString(),
-      email: user.email,
     });
 
     // Generate Refresh Token (rotation logic can be added later)
@@ -149,7 +148,6 @@ export async function login(req, res) {
 
     const { token: accessToken } = await generateAccessToken({
       id: user._id.toString(),
-      email,
     });
 
     const { token: refreshToken /*, jti */ } = await generateRefreshToken({
@@ -169,7 +167,7 @@ export async function login(req, res) {
       statusCode: 200,
       message: "User login successful",
       payload: {
-        accessToken,
+        token: accessToken,
         user: sanitizedUser,
       },
     });
