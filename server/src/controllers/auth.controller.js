@@ -11,6 +11,8 @@ import { ENV } from "../config/env.js";
 import { timeStringToSeconds } from "../utils/time.js";
 import { REFRESH_TOKEN_EXPIRATION } from "../constants/constants.js";
 import logger from "../utils/winstonLogger.js";
+import User from "../models/user.model.js";
+import jwt from "jsonwebtoken";
 
 /**
  * @typedef {Object} RegisterRequestBody
@@ -178,5 +180,45 @@ export async function login(req, res) {
       error: new Error("Internal server error"),
       message: "Internal server error",
     });
+  }
+}
+
+/**
+ * @function refresh
+ * @description Handles renew the access token
+ * @param {import("express").Request} req - Express request object.
+ * @param {import("express").Response} res - Express response object.
+ * @returns {Promise<import("express").Response>} Returns an Express Response.
+ */
+export async function refresh(req, res) {
+  const token = req.cookies.refreshToken;
+
+  if (!token) return res.status(401).json({ msg: "No token" });
+
+  try {
+    const { id: userId } = jwt.verify(token, ENV.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(userId);
+    if (!user) return res.status(403).json({ msg: "Token reuse detected" });
+
+    const { token: newAccessToken } = await generateAccessToken({ id: userId });
+    const { token: newRefreshToken } = await generateRefreshToken({
+      id: userId,
+    });
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: timeStringToSeconds(REFRESH_TOKEN_EXPIRATION) * 1000,
+    });
+
+    res.easyResponse({
+      statusCode: 200,
+      message: "New Access Token genereated",
+      payload: { token: newAccessToken },
+    });
+  } catch (err) {
+    logger.warn("Refresh Error occurred: ", err);
+    return res.status(403).json({ msg: "Invalid token" });
   }
 }
