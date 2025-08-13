@@ -3,6 +3,7 @@ import "@dotenvx/dotenvx/config";
 import app from "./src/app.js";
 import { createServer } from "http";
 import logger from "./src/utils/winstonLogger.js";
+import shutdownDB from "./src/utils/gracefulShutdown.js";
 import connectDB from "./src/config/db.js";
 import { ENV } from "./src/config/env.js";
 
@@ -27,6 +28,8 @@ async function main() {
     server.close(() => {
       logger.info("HTTP server closed");
     });
+
+    await shutdownDB();
 
     for (const conn of connections) conn.destroy();
     process.exit(0);

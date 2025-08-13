@@ -23,10 +23,10 @@ import logger from "../utils/winstonLogger.js";
  * * @param { TokenPayload } payload - The user information to be included in the token.
  * @returns { Promise<TokenResponse> } A promise that resolves with the access token or rejects with an error.
  */
-export async function generateAccessToken({ id, email }) {
+export async function generateAccessToken({ id, email, username }) {
   return new Promise((resolve, reject) => {
     try {
-      const token = JWT.sign({ id, email }, ENV.ACCESS_TOKEN_SECRET, {
+      const token = JWT.sign({ id, email, username }, ENV.ACCESS_TOKEN_SECRET, {
         expiresIn: ACCESS_TOKEN_EXPIRATION,
       });
       resolve({ token });

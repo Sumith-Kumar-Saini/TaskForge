@@ -5,6 +5,10 @@ const _config = {
   BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 10,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+  REDIS: {
+    HOST: process.env.REDIS_HOST,
+    PORT: process.env.REDIS_PORT,
+  },
 };
 
 const ENV_TESTING = process.env.NODE_ENV === "testing";

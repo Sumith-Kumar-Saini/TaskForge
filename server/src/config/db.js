@@ -11,7 +11,7 @@ if (!MONGODB_URI) {
   process.exit(1); // Fail-fast to avoid unpredictable state
 }
 
-async function connectWithRetry(retries = MAX_RETRIES) {
+async function connectDB(retries = MAX_RETRIES) {
   try {
     await mongoose.connect(MONGODB_URI);
 
@@ -28,11 +28,9 @@ async function connectWithRetry(retries = MAX_RETRIES) {
       process.exit(1); // Critical failure
     }
 
-    logger.info(
-      `Retrying MongoDB connection in ${RETRY_DELAY_MS / 1000}s...`
-    );
+    logger.info(`Retrying MongoDB connection in ${RETRY_DELAY_MS / 1000}s...`);
     setTimeout(() => connectWithRetry(retries - 1), RETRY_DELAY_MS);
   }
 }
 
-export default connectWithRetry;
+export default connectDB;
