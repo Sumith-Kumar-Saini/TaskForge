@@ -4,7 +4,7 @@ import logger from "../utils/winstonLogger.js";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 2000;
-const MONGODB_URI = ENV.MONGODB_URI;
+const MONGODB_URI = "mongodb://localhost:27017/taskforge";
 
 if (!MONGODB_URI) {
   logger.error("MONGODB_URI is not provided in environment variables.");
@@ -29,7 +29,7 @@ async function connectDB(retries = MAX_RETRIES) {
     }
 
     logger.info(`Retrying MongoDB connection in ${RETRY_DELAY_MS / 1000}s...`);
-    setTimeout(() => connectWithRetry(retries - 1), RETRY_DELAY_MS);
+    setTimeout(() => connectDB(retries - 1), RETRY_DELAY_MS);
   }
 }
 
