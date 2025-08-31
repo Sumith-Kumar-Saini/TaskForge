@@ -18,3 +18,7 @@ Thumbs.db
 
 # Temp files
 temp
+
+# VSCode settings
+.vscode/
+.vscode/*
